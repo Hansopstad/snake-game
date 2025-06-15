@@ -91,6 +91,7 @@
             let highScore = 0; // Lagrer høyeste poengsum i denne økt
             let gameRunning = false;
             let gameLoop;
+            let gameOver = false; // Ny variabel for å spore game over tilstand
 
             // Vis høyeste poengsum
             highScoreElement.textContent = `Rekord: ${highScore}`;
@@ -106,6 +107,7 @@
 
                 direction = 'right';
                 score = 0;
+                gameOver = false; // Reset game over tilstand
                 scoreElement.textContent = `Poeng: ${score}`;
 
                 // Plasser mat
@@ -117,11 +119,15 @@
 
             // Start spillet
             function startGame() {
-                if (!gameRunning) {
+                if (gameOver || !gameRunning) {
+                    // Hvis spillet er over eller ikke kjører, start et nytt spill
+                    clearInterval(gameLoop);
+                    initGame(); // Initialiser nytt spill
                     gameRunning = true;
                     gameLoop = setInterval(updateGame, speed);
                     startBtn.textContent = 'Pause';
                 } else {
+                    // Hvis spillet kjører, pause det
                     gameRunning = false;
                     clearInterval(gameLoop);
                     startBtn.textContent = 'Fortsett';
@@ -171,14 +177,14 @@
 
                 // Sjekk kollisjon med vegger
                 if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
-                    gameOver();
+                    endGame();
                     return;
                 }
 
                 // Sjekk kollisjon med seg selv
                 for (let i = 0; i < snake.length; i++) {
                     if (head.x === snake[i].x && head.y === snake[i].y) {
-                        gameOver();
+                        endGame();
                         return;
                     }
                 }
@@ -257,10 +263,11 @@
                 direction_queue.push(new_dir);
             });
 
-            // Game over
-            function gameOver() {
+            // Game over - endret navn fra gameOver til endGame for å unngå konflikt
+            function endGame() {
                 clearInterval(gameLoop);
                 gameRunning = false;
+                gameOver = true; // Sett game over tilstand
                 startBtn.textContent = 'Start Spill';
 
                 // Vis game over melding
@@ -282,6 +289,7 @@
             resetBtn.addEventListener('click', function() {
                 clearInterval(gameLoop);
                 gameRunning = false;
+                gameOver = false;
                 startBtn.textContent = 'Start Spill';
                 initGame();
             });
